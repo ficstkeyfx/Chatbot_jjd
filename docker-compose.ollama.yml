@@ -1,0 +1,5 @@
+# Optional NVIDIA acceleration; all models/services are in docker-compose.yml.
+# docker compose -f docker-compose.yml -f docker-compose.ollama.yml up -d --build --wait --wait-timeout 3600
+services:
+  ollama:
+    gpus: all

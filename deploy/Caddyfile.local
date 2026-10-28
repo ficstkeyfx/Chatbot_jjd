@@ -1,0 +1,13 @@
+{
+    auto_https off
+}
+https://localhost, https://127.0.0.1 {
+    tls /certs/localhost.pem /certs/localhost-key.pem
+    encode gzip
+    request_body {
+        max_size 12MB
+    }
+    reverse_proxy app:8000 {
+        flush_interval -1
+    }
+}

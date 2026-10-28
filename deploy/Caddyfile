@@ -1,0 +1,20 @@
+# Caddy tự xin và gia hạn chứng chỉ HTTPS (Let's Encrypt) cho tên miền bên dưới.
+# 1) Thay your-domain.example bằng tên miền đã trỏ về máy chủ này.
+# 2) Tạo mã băm mật khẩu:  docker run --rm caddy:2 caddy hash-password --plaintext 'mat-khau-cua-ban'
+#    rồi dán vào dòng basic_auth (thay HASH_O_DAY).
+your-domain.example {
+	encode gzip
+
+	basic_auth {
+		nhom HASH_O_DAY
+	}
+
+	reverse_proxy app:8000 {
+		# SSE (/api/events) cần đẩy dữ liệu ngay, không được gom bộ đệm.
+		flush_interval -1
+	}
+
+	request_body {
+		max_size 12MB
+	}
+}

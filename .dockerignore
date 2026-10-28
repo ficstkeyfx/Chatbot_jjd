@@ -1,0 +1,17 @@
+.git
+.idea
+.venv
+.runtime
+.pytest_cache
+pytest-cache-files-*
+.env
+.models
+data
+**/__pycache__
+web/node_modules
+web/dist
+legacy_zalo
+tests
+outputs
+evaluation/results
+danh_gia_du_an.txt

@@ -1,0 +1,125 @@
+# One-command install: docker compose up -d --build --wait --wait-timeout 3600
+# First install downloads models. Subsequent starts reuse the named volumes.
+x-model-environment: &model-environment
+  LOCAL_VOICE_MODEL_DIR: /models/voice
+  LOCAL_STT_MODEL: small
+  LOCAL_STT_DEVICE: cpu
+  LOCAL_STT_COMPUTE_TYPE: int8
+  LOCAL_TTS_PROVIDER: vieneu
+  LOCAL_TTS_VOICE: vieneu-default
+  FER_MODEL_ID: ${FER_MODEL_ID:-vit-fer2013}
+  FER_MODEL_PATH: ${FER_CONTAINER_MODEL_PATH:-/models/fer2013/vit-fer2013-fp32.onnx}
+  FER_CPU_THREADS: "2"
+  FER_CAMERA_MODEL_PATH: /models/fer2013/fer-camera.onnx
+  FER_PATT_MODEL_PATH: /models/fer2013/patt-lite-raf.onnx
+  FER_DEFAULT_PROFILE: ${FER_DEFAULT_PROFILE:-camera}
+  YUNET_MODEL_PATH: /models/yunet/face_detection_yunet_2023mar.onnx
+  FACE_DETECTOR: yunet
+  HF_HOME: /models/huggingface
+  HF_HUB_DISABLE_SYMLINKS_WARNING: "1"
+  XDG_CACHE_HOME: /models/cache
+
+services:
+  ollama:
+    image: ollama/ollama:0.40.11
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 10s
+
+  qwen-init:
+    image: ollama/ollama:0.40.11
+    restart: "no"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      CHAT_MODEL: ${CHAT_MODEL:-qwen2.5:3b}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        if ! ollama show "$$CHAT_MODEL" >/dev/null 2>&1; then
+          ollama pull "$$CHAT_MODEL"
+        fi
+        ollama run "$$CHAT_MODEL" 'Reply with one word: OK'
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  model-init:
+    image: healthbot-app:local
+    build: .
+    restart: "no"
+    environment:
+      <<: *model-environment
+    volumes:
+      - healthbot-models:/models
+    command: ["python", "deploy/prepare_models.py"]
+    healthcheck:
+      disable: true
+
+  app:
+    image: healthbot-app:local
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      <<: *model-environment
+      HOST: 0.0.0.0
+      PORT: "8000"
+      DB_PATH: /data/healthbot.db
+      DEFAULT_BACKEND: local
+      LOCAL_LLM_URL: http://ollama:11434/v1
+      LOCAL_LLM_MODEL: ${CHAT_MODEL:-qwen2.5:3b}
+      LOCAL_VISION_MODEL: ""
+      DEFAULT_VOICE_MODE: local
+      LOCAL_VOICE_URL: http://127.0.0.1:8765
+      LOCAL_VOICE_AUTOSTART: "1"
+      LOCAL_VOICE_STARTUP_TIMEOUT: "300"
+      # A token must have one polling owner when native and Docker run together.
+      ZALO_ENABLED: ${ZALO_DOCKER_ENABLED:-${ZALO_ENABLED:-0}}
+      PRELOAD_LOCAL_VOICE: "1"
+      HF_HUB_OFFLINE: "1"
+    depends_on:
+      qwen-init:
+        condition: service_completed_successfully
+      model-init:
+        condition: service_completed_successfully
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8000}:8000"
+    volumes:
+      - healthbot-data:/data
+      - healthbot-models:/models
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 180s
+      retries: 12
+
+  # Optional public HTTPS: edit deploy/Caddyfile, then add --profile public.
+  caddy:
+    profiles: ["public"]
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  healthbot-data:
+  healthbot-models:
+  ollama-data:
+  caddy-data:

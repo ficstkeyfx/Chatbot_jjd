@@ -1,0 +1,200 @@
+/* Hệ thống thiết kế: màu dịu, bo góc lớn, hỗ trợ sáng/tối và giảm chuyển động. */
+:root {
+  --bg: #f3f7f6;
+  --bg-soft: #e9f1ef;
+  --surface: #ffffff;
+  --surface-2: #f7faf9;
+  --text: #15302b;
+  --text-soft: #4d6963;
+  --muted: #7b948e;
+  --border: #dde8e5;
+  --primary: #0f9d83;
+  --primary-strong: #0a7d68;
+  --primary-soft: #dff4ef;
+  --on-primary: #ffffff;
+  --accent: #f0a04b;
+  --accent-soft: #fdf0dd;
+  --danger: #d64545;
+  --danger-soft: #fdeaea;
+  --info-soft: #e5f0fb;
+  --shadow-sm: 0 1px 2px rgba(21, 48, 43, 0.06);
+  --shadow: 0 6px 24px rgba(21, 48, 43, 0.08);
+  --shadow-lg: 0 18px 50px rgba(21, 48, 43, 0.18);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --sidebar-w: 312px;
+  --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Roboto, 'Noto Sans', Arial, sans-serif;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0d1917;
+  --bg-soft: #122421;
+  --surface: #14262a;
+  --surface-2: #1a2f33;
+  --text: #e4f1ee;
+  --text-soft: #a7c2bc;
+  --muted: #7c9a94;
+  --border: #25403f;
+  --primary: #2cc3a5;
+  --primary-strong: #54d6bc;
+  --primary-soft: #14383a;
+  --on-primary: #062a24;
+  --accent: #f2b061;
+  --accent-soft: #3a2d17;
+  --danger: #ff7a7a;
+  --danger-soft: #3d1c1f;
+  --info-soft: #172a3d;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+::selection {
+  background: var(--primary-soft);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* Nút dùng chung */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-strong);
+}
+.btn-soft {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+.btn-soft:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+.btn-ghost {
+  color: var(--text-soft);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-soft);
+  color: var(--text);
+}
+.btn-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: var(--text-soft);
+  transition: background 0.15s, color 0.15s;
+}
+.icon-btn:hover:not(:disabled) {
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.field {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

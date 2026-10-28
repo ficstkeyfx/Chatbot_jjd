@@ -1,0 +1,18 @@
+# Use together with docker-compose.yml after downloading the trained GGUF.
+services:
+  qwen-init:
+    environment:
+      FINETUNED_MODEL_NAME: ${FINETUNED_MODEL_NAME:-healthbot-qwen:3b-draft-v2}
+    volumes:
+      - ${FINETUNED_MODEL_DIR:-./outputs/finetune-qwen}:/finetuned:ro
+    command:
+      - |
+        set -eu
+        cd /finetuned
+        sha256sum -c healthbot-qwen-q4_k_m.gguf.sha256
+        printf 'FROM /finetuned/healthbot-qwen-q4_k_m.gguf\nPARAMETER num_ctx 4096\n' > /tmp/Modelfile
+        ollama create "$$FINETUNED_MODEL_NAME" -f /tmp/Modelfile
+        ollama run "$$FINETUNED_MODEL_NAME" 'Trả lời một từ: OK'
+        if ! ollama show "$$CHAT_MODEL" >/dev/null 2>&1; then
+          ollama pull "$$CHAT_MODEL"
+        fi

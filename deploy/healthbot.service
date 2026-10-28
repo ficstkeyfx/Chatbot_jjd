@@ -1,0 +1,21 @@
+# systemd: cài trên Linux không dùng Docker.  sudo cp deploy/healthbot.service /etc/systemd/system/
+# Sửa User, WorkingDirectory và đường dẫn python (venv) cho đúng, rồi:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now healthbot
+[Unit]
+Description=Tro ly Suc khoe (web)
+After=network.target
+
+[Service]
+User=healthbot
+WorkingDirectory=/opt/healthbot
+EnvironmentFile=/opt/healthbot/.env
+ExecStart=/opt/healthbot/.venv/bin/python server.py
+Restart=on-failure
+RestartSec=5
+# Hạn chế quyền: chỉ ghi vào thư mục dữ liệu.
+NoNewPrivileges=true
+ProtectSystem=full
+ReadWritePaths=/opt/healthbot/data /opt/healthbot/.models
+
+[Install]
+WantedBy=multi-user.target

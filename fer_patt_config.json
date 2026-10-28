@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "labels": [
+    "angry",
+    "disgust",
+    "fear",
+    "happy",
+    "neutral",
+    "sad",
+    "surprise"
+  ],
+  "onnx_sha256": "b81a7260650b0e145ceb939dfaa7a63bc0068894e892d742b3333c6ac63147dc",
+  "source": {
+    "repository": "Cherrie-Queja/PAtt-Lite",
+    "revision": "8cd294cee742f6e2e9aa9186045176acabc7a921",
+    "filename": "models/rafdb.keras",
+    "sha256": "751a460aeccc7d9243af205db77c82773831a2da59f5ce9c0e0fe1cce158047b"
+  },
+  "min_confidence": 0.5,
+  "min_margin": 0.12,
+  "conversion_probability_max_error": 1.2218952178955078e-06,
+  "label_mapping": "Recovered on RAF train rows only, excluding RAF validation"
+}
