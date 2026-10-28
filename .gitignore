@@ -19,14 +19,6 @@ web/npm-install.log
 data/
 outputs/finetune-qwen/
 fine_tuning/runs/
-# Reproducible evaluation caches; keep small metrics/reports in version control.
-outputs/**/*_features.npz
-outputs/**/*_views.npz
-outputs/**/selected-predictions.npz
-outputs/**/rafdb-*.npz
-outputs/**/*.npz
-outputs/fer-finetune-v6/checkpoints/
-outputs/fer-finetune-v6/*.onnx
 *.ps1
 outputs/
 model_assets/
